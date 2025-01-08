@@ -2053,6 +2053,7 @@ config VIDEO_VS6624
 source "drivers/media/i2c/ccs/Kconfig"
 source "drivers/media/i2c/et8ek8/Kconfig"
 source "drivers/media/i2c/m5mols/Kconfig"
+source "drivers/media/i2c/veye_mv/Kconfig"
 
 endif
 

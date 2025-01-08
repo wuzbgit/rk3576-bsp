@@ -1,0 +1,23 @@
+config VIDEO_DS90UB954
+       tristate "TI FDPLINK III support."
+       depends on VIDEO_DEV && I2C
+       help
+         Driver for TI FDPLINK III .
+
+config VIDEO_VEYEVBYONE
+       tristate "VEYE V-by-One hs toolkit support."
+       depends on VIDEO_DEV && I2C
+       help
+         Driver for vV-by-One hs toolkit .
+
+config VIDEO_VEYEMVCAM
+       tristate "VEYE MV series camera support."
+       depends on VIDEO_DEV && I2C
+       help
+         Driver for veye mv series camera.
+
+config VIDEO_VEYECAM2M
+       tristate "VEYE 2M series camera support."
+       depends on VIDEO_DEV && I2C
+       help
+         Driver for veye2m series camera.
