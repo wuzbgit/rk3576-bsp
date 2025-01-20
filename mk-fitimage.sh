@@ -3,7 +3,7 @@
 TARGET_IMG=boot.img
 ITS=boot.its
 KERNEL_IMG=arch/arm64/boot/Image
-KERNEL_DTB=arch/arm64/boot/dts/rockchip/tl3576-evm.dtb
+KERNEL_DTB=arch/arm64/boot/dts/rockchip/boc_rk3576_smartcamera.dtb
 RESOURCE_IMG=resource.img
 
 if [ ! -f "$TARGET_IMG" ]; then
