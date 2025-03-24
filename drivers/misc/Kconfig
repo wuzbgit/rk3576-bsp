@@ -513,6 +513,12 @@ config VCPU_STALL_DETECTOR
 	  will be called vcpu_stall_detector.
 
 	  If you do not intend to run this kernel as a guest, say N.
+config BOC_DO
+	tristate "BOC DO driver"
+	depends on OF
+	default Y
+	help
+	  This driver provides support for the BOC DO device.
 
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
