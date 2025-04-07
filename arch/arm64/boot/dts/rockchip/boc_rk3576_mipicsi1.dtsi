@@ -1,0 +1,116 @@
+&i2c6 {      
+        mvcam_1: mvcam@3b{
+               compatible = "veye,mvcam";
+               reg = <0x3b>;
+               clocks = <&veye_mv265_clk>;
+               clock-names = "xvclk";
+               reset-gpios = <&xl9555 9 GPIO_ACTIVE_HIGH>;
+
+               rockchip,camera-module-index = <0>;
+               rockchip,camera-module-facing = "back";
+               rockchip,camera-module-name = "NC";
+               rockchip,camera-module-lens-name = "NC";
+               port {
+                        camera1_out: endpoint {
+                               remote-endpoint = <&mipi_dphy1_in_mv265>;
+                               data-lanes = <1 2>;
+                       };
+               };
+       };
+
+};
+
+&csi2_dphy1 {
+	status = "okay";
+
+        ports {
+                #address-cells = <1>;
+                #size-cells = <0>;
+                port@0 {
+                        reg = <0>;
+			#address-cells = <1>;
+                        #size-cells = <0>;
+
+                        mipi_dphy1_in_mv265: endpoint@1 {
+                                reg = <1>;
+                                remote-endpoint = <&camera1_out>;
+                                data-lanes = <1 2>;
+                        };
+                };
+                port@1 {
+                        reg = <1>;
+                        #address-cells = <1>;
+                        #size-cells = <0>;
+
+                        csidphy1_out: endpoint@0 {
+                                reg = <0>;
+                                remote-endpoint = <&mipi1_csi2_input>;
+                        };
+                };
+        };
+};
+
+&mipi1_csi2 {
+        status = "okay";
+
+        ports {
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                port@0 {
+                        reg = <0>;
+                        #address-cells = <1>;
+                        #size-cells = <0>;
+
+                        mipi1_csi2_input: endpoint@1 {
+                                reg = <1>;
+                                remote-endpoint = <&csidphy1_out>;
+                        };
+                };
+
+                port@1 {
+                        reg = <1>;
+                        #address-cells = <1>;
+                        #size-cells = <0>;
+
+                        mipi1_csi2_output: endpoint@0 {
+                                reg = <0>;
+                                remote-endpoint = <&cif_mipi_in1>;
+                        };
+                };
+        };
+};
+
+&rkcif_mipi_lvds1 {
+        status = "okay";
+
+        port {
+                cif_mipi_in1: endpoint {
+                        remote-endpoint = <&mipi1_csi2_output>;
+                };
+        };
+};
+
+&rkcif_mipi_lvds1_sditf {
+	status = "disabled";
+
+	port {
+                mipi_lvds1_sditf: endpoint {
+                        remote-endpoint = <&isp_vir1_in0>;
+                };
+        };
+};
+
+&rkisp_vir1 {
+        status = "disabled";
+
+        port {
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                isp_vir1_in0: endpoint@0 {
+                        reg = <0>;
+                        remote-endpoint = <&mipi_lvds1_sditf>;
+                };
+        };
+};

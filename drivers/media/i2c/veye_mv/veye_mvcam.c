@@ -277,8 +277,7 @@ static int mvcam_getroi(struct mvcam *mvcam)
     mvcam_read(client, ROI_Offset_Y,&mvcam->roi.top);
     mvcam_read(client, ROI_Width,&mvcam->roi.width);
     mvcam_read(client, ROI_Height,&mvcam->roi.height);
-    dev_info(&mvcam->client->dev, "%s:get roi(%d,%d,%d,%d)\n",
-			 __func__, mvcam->roi.left,mvcam->roi.top,mvcam->roi.width,mvcam->roi.height);
+
     return 0;
 }
 
@@ -520,19 +519,18 @@ static void mvcam_v4l2_ctrl_init(struct mvcam *mvcam)
             case V4L2_CID_VEYE_MV_TRIGGER_MODE:
                 mvcam_read(client, Trigger_Mode,&value);
                 mvcam_v4l2_ctrls[i].def = value;
-                dev_info(&mvcam->client->dev, "%s:default trigger mode %d\n", __func__, value);
             break;
             case V4L2_CID_VEYE_MV_TRIGGER_SRC:
                 mvcam_read(client, Trigger_Source,&value);
                 mvcam_v4l2_ctrls[i].def = value;
-                dev_info(&mvcam->client->dev, "%s:default trigger source %d\n", __func__, value);
+                dev_info(&mvcam->client->dev, "default trigger source %d\n", value);
             break;
             case V4L2_CID_VEYE_MV_FRAME_RATE:
                 mvcam_read(client, Framerate,&value);
                 mvcam_v4l2_ctrls[i].def = value/100;
                 mvcam_read(client, MaxFrame_Rate,&value);
                 mvcam_v4l2_ctrls[i].max = value/100;
-                dev_info(&mvcam->client->dev, "%s:default framerate %lld , max fps %lld \n", __func__, \
+                dev_info(&mvcam->client->dev, "default framerate %lld , max fps %lld \n", \
                     mvcam_v4l2_ctrls[i].def,mvcam_v4l2_ctrls[i].max);
             break;
             case V4L2_CID_VEYE_MV_ROI_X:
@@ -593,8 +591,6 @@ static int mvcam_csi2_enum_framesizes(
 {
 	struct mvcam *mvcam = to_mvcam(sd);
 VEYE_TRACE
-	dev_info(&mvcam->client->dev, "%s: code = (0x%X), index = (%d)\n",
-			 __func__, fse->code, fse->index);
     if (fse->index != 0)
         return -EINVAL;
     fse->min_width = fse->max_width =
@@ -631,8 +627,8 @@ static int mvcam_s_frame_interval(struct v4l2_subdev *sd,
     if(fi->interval.numerator == 0)
         return -EINVAL;
     
-    dev_info(&mvcam->client->dev, "%s: numerator %d, denominator %d\n",
-    			__func__, fi->interval.numerator,fi->interval.denominator);
+    dev_info(&mvcam->client->dev, " numerator %d, denominator %d\n",
+                       fi->interval.numerator,fi->interval.denominator);
 
 	mutex_lock(&mvcam->mutex);
     mvcam->cur_fps = fi->interval.denominator/fi->interval.numerator;
@@ -661,10 +657,10 @@ VEYE_TRACE
                 return -ENOTTY;
         #endif
         } else {
-    		current_format = &mvcam->supported_formats[mvcam->current_format_idx];
-    		format->format.width = mvcam->roi.width;
-    		format->format.height = mvcam->roi.height;
-            
+                   current_format = &mvcam->supported_formats[mvcam->current_format_idx];
+                   format->format.width = mvcam->roi.width;
+                   format->format.height = mvcam->roi.height;
+
     		format->format.code = current_format->mbus_code;
     		format->format.field = V4L2_FIELD_NONE;
             //for uyvy gstreamer 
@@ -674,11 +670,11 @@ VEYE_TRACE
         							  format->format.colorspace,
         							  format->format.ycbcr_enc);
         	format->format.xfer_func = V4L2_MAP_XFER_FUNC_DEFAULT(format->format.colorspace);
-*/            
-    		dev_info(&mvcam->client->dev, "%s: width: (%d) height: (%d) code: (0x%X)\n",
-    			__func__, format->format.width,format->format.height,
+*/
+    		dev_info(&mvcam->client->dev, "width: (%d) height: (%d) code: (0x%X)\n",
+    			format->format.width,format->format.height,
     				format->format.code);
-    	} 
+    	}
 
 	mutex_unlock(&mvcam->mutex);
 	return 0;
@@ -744,7 +740,7 @@ static int mvcam_set_selection(struct v4l2_subdev *sd,
         default:
             return -EINVAL;
         }
-        dev_info(&mvcam->client->dev, "%s: target %d\n", __func__,V4L2_SEL_TGT_CROP);
+
         return 0;
 }
 static int mvcam_frm_supported(int roi_x,int wmin, int wmax, int ws,
@@ -770,9 +766,9 @@ static int mvcam_csi2_try_fmt(struct v4l2_subdev *sd,
 	int ret = 0;
 VEYE_TRACE
 	ret = mvcam_frm_supported(
-			mvcam->roi.left,mvcam->min_width, mvcam->max_width, MV_CAM_ROI_W_ALIGN,
-			mvcam->roi.top,mvcam->min_height, mvcam->max_height, MV_CAM_ROI_H_ALIGN,
-			format->format.width, format->format.height);
+           mvcam->roi.left,mvcam->min_width, mvcam->max_width, MV_CAM_ROI_W_ALIGN,
+           mvcam->roi.top,mvcam->min_height, mvcam->max_height, MV_CAM_ROI_H_ALIGN,
+           format->format.width, format->format.height);
 
 	if (ret < 0) {
 		v4l2_err(sd, "Not supported size!\n");
@@ -794,8 +790,8 @@ VEYE_TRACE
     //format->format.colorspace =  V4L2_COLORSPACE_SRGB;
     format->format.field = V4L2_FIELD_NONE;
 
-    dev_info(&mvcam->client->dev, "%s: code: 0x%X width:%d height:%d",
-            __func__, format->format.code,format->format.width,format->format.height);
+    dev_info(&mvcam->client->dev, " code: 0x%X width:%d height:%d",
+            format->format.code,format->format.width,format->format.height);
     if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
             return mvcam_csi2_try_fmt(sd, sd_state, format);
      } else {
@@ -804,7 +800,6 @@ VEYE_TRACE
 			dev_err(&mvcam->client->dev,"mvcam_csi2_get_fmt_idx_by_code failed\n");
 			return -EINVAL;
 		}
-            
         mvcam->current_format_idx = i;
         mvcam_write(mvcam->client,Pixel_Format,mvcam->supported_formats[i].data_type);
 
@@ -852,7 +847,7 @@ static long mvcam_ioctl(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
 	long ret = 0;
     struct rkmodule_channel_info *ch_info;
     VEYE_TRACE
-	dev_info(&mvcam->client->dev,"mvcam ioctl cmd=0x%x\n",cmd);
+
 	switch (cmd) {
 	case RKMODULE_GET_MODULE_INFO:
 		mvcam_get_module_inf(mvcam, (struct rkmodule_inf *)arg);
@@ -1012,16 +1007,14 @@ VEYE_TRACE
 		mvcam->supported_formats[index].index = index;
 		mvcam->supported_formats[index].mbus_code = mbus_code;
 		mvcam->supported_formats[index].data_type = pixformat_type;
-        dev_info(&mvcam->client->dev, "%s support format index %d mbuscode %d datatype: %d\n",
-					__func__, index,mbus_code,pixformat_type);
+        dev_info(&mvcam->client->dev, "support format index %d mbuscode %d datatype: %d\n",
+					index,mbus_code,pixformat_type);
         index++;
 	}
 	mvcam->num_supported_formats = num_pixformat;
 
     mvcam_read(client, Pixel_Format, &cur_fmt);
 	mvcam->current_format_idx = get_fmt_index(mvcam,cur_fmt);
-    dev_info(&mvcam->client->dev, "%s: cur format: %d\n",
-					__func__, cur_fmt);
 	// mvcam_add_extension_pixformat(mvcam);
 	return 0;
 VEYE_TRACE
@@ -1050,8 +1043,7 @@ static void mvcam_get_mipifeature(struct mvcam *mvcam)
     mvcam->mipi_datarate = mipi_datarate;
     
     link_freq_menu_items[0] = mvcam->mipi_datarate>>1;//hz is half of datarate
-    dev_info(&client->dev, "%s: lane num %d, datarate %d bps\n",
-					__func__, mvcam->lane_num,mvcam->mipi_datarate);
+
     return;
 }
 /* Start streaming */
@@ -1177,7 +1169,7 @@ static int mvcam_enum_frame_interval(struct v4l2_subdev *sd,
 	struct v4l2_fract fract_fps;
 	struct mvcam *mvcam = to_mvcam(sd);
 	VEYE_TRACE
-	dev_info(&mvcam->client->dev,"mvcam enum fram interval...\n");
+
 	mutex_lock(&mvcam->mutex);
     fie->width = mvcam->roi.width;
 	fie->height = mvcam->roi.height;
